@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Grocery Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+    <style>
+        .admin-section {
+            margin-top: 24px;
+        }
+
+        .admin-section h3 {
+            margin-bottom: 12px;
+            color: #38bdf8;
+            font-size: 18px;
+        }
+
+        .inline-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .inline-form input {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .small-btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            color: #ffffff;
+            background: #0284c7;
+        }
+
+        .small-btn.danger {
+            background: #dc2626;
+        }
+
+        .small-btn.success {
+            background: #16a34a;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Grocery</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') if logged_in else url_for('login') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Products</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        {% if logged_in %}
+            <a href="{{ url_for('logout') }}" class="logout-nav-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="login-nav-btn">Login</a>
+        {% endif %}
+    </header>
+
+    <div class="main-container">
+        {% if not is_admin %}
+            <div class="glass-box">
+                <a href="{{ url_for('dashboard') if logged_in else url_for('login') }}" class="close-btn">&times;</a>
+                <h2>Admin Login</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, msg in messages %}
+                            <div class="alert {{ 'alert-success' if category == 'success' else 'alert-danger' }}">
+                                {{ msg }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('admin') }}">
+                    <input type="hidden" name="action" value="admin_login">
+                    <div class="input-group">
+                        <input type="email" name="admin_email" placeholder="Geli Admin Email" required>
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" name="admin_password" placeholder="Geli Admin Password" required>
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <button type="submit" class="submit-btn">Soo Gal Admin</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="dashboard-card admin-card">
+                <a href="{{ url_for('dashboard') if logged_in else url_for('login') }}" class="close-btn">&times;</a>
+                <h2>Admin Panel</h2>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, msg in messages %}
+                            <div class="alert {{ 'alert-success' if category == 'success' else 'alert-danger' }}">
+                                {{ msg }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <div class="stats-row">
+                    <div class="user-info-box">
+                        <span>Total Revenue</span>
+                        <strong>${{ "%.2f"|format(total_revenue) }}</strong>
+                    </div>
+                    <div class="user-info-box">
+                        <span>Products</span>
+                        <strong>{{ products|length }}</strong>
+                    </div>
+                    <div class="user-info-box">
+                        <span>Orders</span>
+                        <strong>{{ orders|length }}</strong>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Ku Dar Alaab Cusub</h3>
+                    <form method="POST" action="{{ url_for('admin') }}" class="inline-form">
+                        <input type="hidden" name="action" value="add_product">
+                        <input type="text" name="name" placeholder="Magaca alaabta" required>
+                        <input type="number" step="0.01" min="0.01" name="price" placeholder="Qiimaha ($)" required>
+                        <input type="number" min="0" name="stock" placeholder="Stock" required>
+                        <button type="submit" class="small-btn success">Ku Dar</button>
+                    </form>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Maamulka Alaabta (Products)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Alaabta</th>
+                                <th>Qiimaha ($)</th>
+                                <th>Stock</th>
+                                <th>Ficillo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in products %}
+                            <tr>
+                                <td>{{ p["name"] }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin') }}" class="inline-form" style="margin:0;">
+                                        <input type="hidden" name="action" value="update_stock">
+                                        <input type="hidden" name="product_id" value="{{ p['id'] }}">
+                                        <input type="number" step="0.01" min="0.01" name="price" value="{{ p['price'] }}" style="width:85px;">
+                                </td>
+                                <td>
+                                        <input type="number" min="0" name="stock" value="{{ p['stock'] }}" style="width:75px;">
+                                </td>
+                                <td style="display:flex; gap:6px;">
+                                        <button type="submit" class="small-btn">Keydi</button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin') }}" style="margin:0;">
+                                        <input type="hidden" name="action" value="delete_product">
+                                        <input type="hidden" name="product_id" value="{{ p['id'] }}">
+                                        <button type="submit" class="small-btn danger">Tir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Dalabaadka (Orders)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Alaabta</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for o in orders %}
+                            <tr>
+                                <td>{{ o["user_email"] }}</td>
+                                <td>{{ o["product_name"] }}</td>
+                                <td>{{ o["quantity"] }}</td>
+                                <td>${{ "%.2f"|format(o["total_price"]) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Fariimaha Macaamiisha (Messages)</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Magaca</th>
+                                <th>Email</th>
+                                <th>Fariinta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in messages %}
+                            <tr>
+                                <td>{{ m["name"] }}</td>
+                                <td>{{ m["email"] }}</td>
+                                <td>{{ m["message"] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin') }}" style="margin-top: 20px;">
+                    <input type="hidden" name="action" value="admin_logout">
+                    <button type="submit" class="logout-btn">Ka Bax Admin View</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

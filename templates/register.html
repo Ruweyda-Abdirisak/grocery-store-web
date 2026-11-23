@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Python System</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- External Static CSS Link with Cache Buster -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+</head>
+<body>
+
+    <!-- Header-ka sare -->
+    <header>
+        <div class="logo">Logo</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') if 'user' in session else url_for('login') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Services</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        <a href="{{ url_for('login') }}" class="login-nav-btn">Login</a>
+    </header>
+
+    <!-- Qaybta diiwaangelinta (Glassmorphism Box) -->
+    <div class="main-container">
+        <div class="glass-box">
+            <a href="{{ url_for('dashboard') if 'user' in session else url_for('login') }}" class="close-btn">&times;</a>
+            <h2>Register</h2>
+
+            <!-- Fariimaha Flash-ka -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="input-group">
+                    <input type="email" name="email" placeholder="Email" required>
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <i class="fa-solid fa-eye toggle-password" data-target="password"></i>
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                    <i class="fa-solid fa-eye toggle-password" data-target="confirm_password"></i>
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+
+                <button type="submit" class="submit-btn">Register</button>
+            </form>
+
+            <div class="bottom-prompt">
+                Already have an account? <a href="{{ url_for('login') }}">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggleIcons = document.querySelectorAll('.toggle-password');
+
+        toggleIcons.forEach(icon => {
+            icon.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const inputField = document.getElementById(targetId);
+
+                const isPassword = inputField.getAttribute('type') === 'password';
+                inputField.setAttribute('type', isPassword ? 'text' : 'password');
+
+                this.classList.toggle('fa-eye');
+                this.classList.toggle('fa-eye-slash');
+            });
+        });
+    </script>
+
+</body>
+</html>

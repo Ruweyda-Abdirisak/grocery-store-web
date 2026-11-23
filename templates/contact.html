@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Us - Grocery Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+    <style>
+        .contact-field {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        .contact-field input,
+        .contact-field textarea {
+            width: 100%;
+            padding: 13px 42px 13px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(15, 23, 42, 0.55);
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .contact-field textarea {
+            min-height: 92px;
+            resize: vertical;
+        }
+        .contact-field input::placeholder,
+        .contact-field textarea::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+        }
+        .contact-field input:focus,
+        .contact-field textarea:focus {
+            border-color: #38bdf8;
+        }
+        .contact-icon {
+            position: absolute;
+            right: 14px;
+            top: 15px;
+            color: rgba(255, 255, 255, 0.65);
+            pointer-events: none;
+        }
+        .grocery-note {
+            font-size: 0.82rem;
+            opacity: 0.8;
+            margin-bottom: 14px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Grocery</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') if logged_in else url_for('login') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Products</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        {% if logged_in %}
+            <a href="{{ url_for('logout') }}" class="logout-nav-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="login-nav-btn">Register</a>
+        {% endif %}
+    </header>
+
+    <div class="main-container">
+        <div class="glass-box" style="max-width: 440px; width: 100%;">
+            <a href="{{ url_for('dashboard') if logged_in else url_for('login') }}" class="close-btn">&times;</a>
+            <h2>Contact Us</h2>
+            <p class="grocery-note">Wax su'aal ah, dalab gaar ah, ama caawin ma uga baahan tahay dukaanka raashinka? Halkan noogu qor.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="contact-field">
+                    <input type="text" name="name" placeholder="shugri Abdirisaq" required>
+                    <i class="fa-solid fa-user contact-icon"></i>
+                </div>
+
+                <div class="contact-field">
+                    <input type="email" name="email" value="{{ email }}" placeholder="shugri@gmail.com" required>
+                    <i class="fa-solid fa-envelope contact-icon"></i>
+                </div>
+
+                <div class="contact-field">
+                    <textarea name="message" placeholder="Your Message (tusaale: su'aal ku saabsan alaabta ama dalabkaaga)" required></textarea>
+                    <i class="fa-solid fa-comment contact-icon"></i>
+                </div>
+
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

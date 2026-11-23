@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us - Grocery Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+</head>
+<body>
+    <header>
+        <div class="logo">Grocery</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('dashboard') if logged_in else url_for('login') }}">Home</a></li>
+                <li><a href="{{ url_for('about') }}">About</a></li>
+                <li><a href="{{ url_for('services') }}">Products</a></li>
+                <li><a href="{{ url_for('contact') }}">Contact</a></li>
+            </ul>
+        </nav>
+        {% if logged_in %}
+            <a href="{{ url_for('logout') }}" class="logout-nav-btn">Logout</a>
+        {% else %}
+            <a href="{{ url_for('register') }}" class="login-nav-btn">Register</a>
+        {% endif %}
+    </header>
+
+    <div class="main-container">
+        <div class="glass-box" style="max-width: 520px; width: 100%;">
+            <a href="{{ url_for('dashboard') if logged_in else url_for('login') }}" class="close-btn">&times;</a>
+            <h2>About Our Grocery</h2>
+
+            <p style="margin-bottom: 14px; line-height: 1.5;">
+                Waxaan nahay dukaan raashin iyo alaabta maalinlaha ah bixiya oo macaamiisha u fududeeya inay si degdeg ah wax u dalbadaan oo la socdaan dalabaadkooda.
+            </p>
+
+            <div class="user-info-box">
+                <span>Fresh & Daily Essentials</span>
+                <strong>Raashin, Saliid, Caano & Khudrad</strong>
+            </div>
+
+            <div class="user-info-box">
+                <span>Easy Order Tracking</span>
+                <strong>Dalbo & Ka Eeg Dashboard-ka</strong>
+            </div>
+
+            <a href="{{ url_for('services') }}" class="submit-btn" style="margin-top: 12px;">Eeg Alaabta (Products)</a>
+        </div>
+    </div>
+</body>
+</html>
